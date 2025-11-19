@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${produto.id == null} ? 'Novo Produto/Serviço' : 'Editar Produto/Serviço'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
+        form { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        div { display: flex; flex-direction: column; }
+        .radio-group { flex-direction: row; align-items: center; gap: 15px; }
+        .radio-group label { margin-bottom: 0; font-weight: normal; }
+        label { margin-bottom: 5px; font-weight: bold; }
+        input[type=text], input[type=number] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-salvar { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-voltar { text-decoration: none; color: #555; }
+        .error-message { color: red; font-size: 0.9em; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+<h1 th:text="${produto.id == null} ? 'Novo Produto/Serviço' : 'Editar Produto/Serviço'">Formulário</h1>
+
+<form th:action="@{/produtos}" th:object="${produto}" method="post">
+
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+        <label for="descricao">Descrição:</label>
+        <input type="text" th:field="*{descricao}" id="descricao" />
+        <span class="error-message" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></span>
+    </div>
+
+    <div>
+        <label for="preco">Preço (R$):</label>
+        <input type="number" th:field="*{preco}" id="preco" step="0.01" min="0" />
+        <span class="error-message" th:if="${#fields.hasErrors('preco')}" th:errors="*{preco}"></span>
+    </div>
+
+    <div>
+        <label>Tipo:</label>
+        <div class="radio-group">
+            <input type="radio" th:field="*{precoEditavel}" value="false" id="tipo-produto" />
+            <label for="tipo-produto">Produto (Preço Fixo)</label>
+
+            <input type="radio" th:field="*{precoEditavel}" value="true" id="tipo-servico" />
+            <label for="tipo-servico">Serviço (Preço Editável no Orçamento)</label>
+        </div>
+        <span class="error-message" th:if="${#fields.hasErrors('precoEditavel')}" th:errors="*{precoEditavel}"></span>
+    </div>
+
+    <div>
+        <label for="imagemUrl">URL da Imagem (Opcional):</label>
+        <input type="text" th:field="*{imagemUrl}" id="imagemUrl" />
+        <span class="error-message" th:if="${#fields.hasErrors('imagemUrl')}" th:errors="*{imagemUrl}"></span>
+    </div>
+
+    <div>
+        <button type="submit" class="btn-salvar">Salvar</button>
+        <br/>
+        <a th:href="@{/produtos}" class="btn-voltar">Voltar para a Lista</a>
+    </div>
+</form>
+
+</body>
+</html>

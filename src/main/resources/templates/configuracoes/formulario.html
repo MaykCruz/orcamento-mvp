@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações da Empresa</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        div { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-weight: bold; }
+        input[type=text], input[type=number] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .full-width { grid-column: 1 / -1; } /* Ocupa a largura total */
+        .btn-salvar { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .msg-sucesso { color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px; }
+        .logo-preview-container {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            display: inline-block; /* Faz a div se ajustar ao tamanho da imagem */
+        }
+        .logo-preview {
+            max-width: 250px; /* Define uma largura máxima */
+            max-height: 100px; /* Define uma altura máxima */
+            object-fit: contain; /* Garante que a imagem apareça inteira */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Configurações da Empresa</h1>
+<p>Estes dados serão usados para gerar os orçamentos em PDF.</p>
+
+<div th:if="${mensagemSucesso}" class="msg-sucesso" th:text="${mensagemSucesso}"></div>
+
+<form th:action="@{/configuracoes}" th:object="${configs}" method="post">
+
+    <input type="hidden" th:field="*{id}" />
+
+    <div class="full-width">
+        <h2>Dados da Empresa</h2>
+    </div>
+
+    <div>
+        <label for="nome">Nome da Empresa:</label>
+        <input type="text" th:field="*{nome}" id="nome" />
+    </div>
+
+    <div>
+        <label for="cnpj">CNPJ:</label>
+        <input type="text" th:field="*{cnpj}" id="cnpj" />
+    </div>
+
+    <div>
+        <label for="diasValidadeOrcamento">Validade Padrão dos Orçamentos (dias):</label>
+        <input type="number" th:field="*{diasValidadeOrcamento}" id="diasValidadeOrcamento" min="0" />
+    </div>
+
+    <div>
+        <label for="logoUrl">URL do Logo (para o PDF):</label>
+        <input type="text" th:field="*{logoUrl}" id="logoUrl" placeholder="Ex: https://i.imgur.com/link.jpg" />
+    </div>
+
+    <div th:if="${configs.logoUrl != null && !configs.logoUrl.isEmpty()}" class="logo-preview-container">
+        <label>Pré-visualização do Logo:</label>
+        <img th:src="${configs.logoUrl}" alt="Preview do Logo" class="logo-preview" />
+    </div>
+
+    <div class="full-width">
+        <h2>Endereço da Empresa (para o PDF)</h2>
+    </div>
+
+    <div>
+        <label for="logradouro">Logradouro:</label>
+        <input type="text" th:field="*{logradouro}" id="logradouro" />
+    </div>
+
+    <div>
+        <label for="numero">Número:</label>
+        <input type="text" th:field="*{numero}" id="numero" />
+    </div>
+
+    <div>
+        <label for="bairro">Bairro:</label>
+        <input type="text" th:field="*{bairro}" id="bairro" />
+    </div>
+
+    <div>
+        <label for="cep">CEP:</label>
+        <input type="text" th:field="*{cep}" id="cep" />
+    </div>
+
+    <div>
+        <label for="cidade">Cidade:</label>
+        <input type="text" th:field="*{cidade}" id="cidade" />
+    </div>
+
+    <div>
+        <label for="uf">UF:</label>
+        <input type="text" th:field="*{uf}" id="uf" maxlength="2" />
+    </div>
+
+    <div class="full-width">
+        <button type="submit" class="btn-salvar">Salvar Configurações</button>
+    </div>
+</form>
+
+</body>
+</html>

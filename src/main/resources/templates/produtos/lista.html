@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Produtos e Serviços</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 5px 10px; text-decoration: none; border-radius: 4px; }
+        .btn-novo { background-color: #28a745; color: white; }
+        .btn-editar { background-color: #ffc107; color: black; }
+        .btn-deletar { background-color: #dc3545; color: white; }
+        .msg-sucesso { color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px; }
+        .msg-erro { color: red; border: 1px solid red; padding: 10px; margin-bottom: 10px; }
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Gestão de Produtos e Serviços</h1>
+
+<div th:if="${mensagemSucesso}" class="msg-sucesso" th:text="${mensagemSucesso}"></div>
+<div th:if="${mensagemErro}" class="msg-erro" th:text="${mensagemErro}"></div>
+
+<p>
+    <a th:href="@{/produtos/novo}" class="btn btn-novo">Novo Produto/Serviço</a>
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Imagem</th> <th>Descrição</th>
+        <th>Preço</th>
+        <th>Tipo</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="produto : ${produtos}">
+        <td th:text="${produto.id}">1</td>
+
+        <td>
+            <img th:if="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}"
+                 th:src="${produto.imagemUrl}"
+                 alt="Imagem do Produto"
+                 class="thumbnail" />
+            <span th:unless="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}">
+                        (Sem Img)
+                    </span>
+        </td>
+
+        <td th:text="${produto.descricao}">Descrição do Produto</td>
+
+        <td th:text="${#numbers.formatCurrency(produto.preco)}">R$ 100,00</td>
+
+        <td>
+            <span th:text="${produto.precoEditavel} ? 'Serviço' : 'Produto'"></span>
+        </td>
+
+        <td>
+            <a th:href="@{/produtos/editar/{id}(id=${produto.id})}" class="btn btn-editar">Editar</a>
+
+            <a th:href="@{/produtos/deletar/{id}(id=${produto.id})}"
+               class="btn btn-deletar"
+               onclick="return confirm('Tem certeza que deseja deletar?');">
+                Deletar
+            </a>
+        </td>
+    </tr>
+
+    <tr th:if="${#lists.isEmpty(produtos)}">
+        <td colspan="6">Nenhum produto ou serviço cadastrado.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

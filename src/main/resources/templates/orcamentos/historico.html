@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Orçamentos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 0.9em; }
+        .btn-novo { background-color: #28a745; color: white; margin-right: 10px; }
+        .btn-pdf { background-color: #dc3545; color: white; }
+        .total-valor { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h1>Histórico de Orçamentos</h1>
+
+<p>
+    <a th:href="@{/orcamentos/novo}" class="btn btn-novo">Criar Novo Orçamento</a>
+    <a th:href="@{/clientes}" class="btn">Clientes</a>
+    <a th:href="@{/produtos}" class="btn">Produtos</a>
+    <a th:href="@{/configuracoes}" class="btn">Configurações</a>
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Cliente</th>
+        <th>Itens</th>
+        <th>Total Final</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="orcamento : ${orcamentos}">
+        <td th:text="${orcamento.id}">#1</td>
+        <td th:text="${#temporals.format(orcamento.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</td>
+
+        <td th:text="${orcamento.cliente.nome}">Nome do Cliente</td>
+
+        <td th:text="${orcamento.itensOrcamento.size()}">5 itens</td>
+
+        <td class="total-valor" th:text="${#numbers.formatCurrency(orcamento.total)}">R$ 5.000,00</td>
+
+        <td>
+            <a th:href="@{/orcamentos/pdf/{id}(id=${orcamento.id})}" class="btn btn-pdf">Gerar PDF</a>
+            <a th:href="@{/orcamentos/editar/{id}(id=${orcamento.id})}" class="btn" style="background-color: #17a2b8; color: white;">Visualizar</a>
+            <a th:href="@{/orcamentos/deletar/{id}(id=${orcamento.id})}" class="btn" style="background-color: #dc3545; color: white; margin-left: 5px;"
+               onclick="return confirm('Tem certeza que deseja excluir este orçamento permanentemente?');">Excluir</a>
+        </td>
+    </tr>
+
+    <tr th:if="${#lists.isEmpty(orcamentos)}">
+        <td colspan="6">Nenhum orçamento encontrado.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
