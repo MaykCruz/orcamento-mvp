@@ -89,7 +89,7 @@ Para o primeiro acesso, utilize o usuário administrador que é criado automatic
         </sub>
       </a><br>
       <small>Fullstack Developer</small><br>
-      <a href="www.linkedin.com/in/mayk-cruz" target="_blank">
+      <a href="https://www.linkedin.com/in/mayk-cruz" target="_blank">
         <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
       </a>
       <a href="mailto:maykcruz30@gmail.com" target="_blank">
