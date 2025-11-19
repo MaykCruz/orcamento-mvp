@@ -163,7 +163,7 @@ public class OrcamentoServiceImpl implements OrcamentoService {
 
     @Override
     @Transactional(readOnly = true)
-    public OrcamentoFormDTO buscarParaEdicao(Long id) {
+    public OrcamentoFormDTO buscarParaVisualizar(Long id) {
         Orcamento orcamento = orcamentoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Orcamento não encontrado"));
 

@@ -21,7 +21,7 @@ public interface OrcamentoService {
 
     Orcamento findById(Long id);
 
-    OrcamentoFormDTO buscarParaEdicao(Long id);
+    OrcamentoFormDTO buscarParaVisualizar(Long id);
 
     void deleteById(Long id);
 }

@@ -32,10 +32,6 @@ public class OrcamentoController {
     @Autowired
     private br.com.fatec.orcamento_mvp.service.PdfService pdfService;
 
-    /**
-     * Rota para DELETAR um orçamento
-     * URL: GET /orcamentos/deletar/{id}
-     */
     @GetMapping("/deletar/{id}")
     public String deletarOrcamento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -47,22 +43,21 @@ public class OrcamentoController {
         return "redirect:/orcamentos/historico";
     }
 
-    @GetMapping("/editar/{id}")
-    public String editarOrcamento(@PathVariable Long id, Model model) {
-        // 1. Busca o DTO preenchido
-        OrcamentoFormDTO dto = orcamentoService.buscarParaEdicao(id);
+    @GetMapping("/visualizar/{id}")
+    public String visualizarOrcamento(@PathVariable Long id, Model model) {
+        // 1. Busca os dados (reaproveita o método de edição que já preenche o DTO)
+        OrcamentoFormDTO dto = orcamentoService.buscarParaVisualizar(id);
 
-        model.addAttribute("orcamentoFormDTO", dto); // envia preenchido
+        model.addAttribute("orcamentoFormDTO", dto);
         model.addAttribute("clientes", clienteService.findAll());
         model.addAttribute("produtos", produtoService.findAll());
 
-        return "orcamentos/formulario";
+        // 2. A MÁGICA: Enviamos essa flag para bloquear o formulário
+        model.addAttribute("modoVisualizacao", true);
+
+        return "orcamentos/formulario"; // Reutiliza o mesmo HTML
     }
 
-    /**
-     * Rota para GERAR E BAIXAR O PDF
-     * URL: GET /orcamentos/pdf{id}
-     */
     @GetMapping("/pdf/{id}")
     public ResponseEntity<byte[]> gerarPdf(@PathVariable Long id) {
         // 1. Busca o orçamento (Reutilizamos o repository via service)
@@ -78,10 +73,6 @@ public class OrcamentoController {
                 .body(pdfBytes);
     }
 
-    /**
-     * Rota para exibir o Histórico de Orçamentos
-     * URL: GET /orcamentos/historico
-     */
     @GetMapping("/historico")
     public String listarHistorico(Model model) {
         // Busca todos os orçamentos.
@@ -92,10 +83,6 @@ public class OrcamentoController {
         return "orcamentos/historico"; // -> /resources/templates/orcamentos/historico.html
     }
 
-    /**
-     * Rota para EXIBIR o formulário de novo orçamento.
-     * URL: GET /orcamentos/novo
-     */
     @GetMapping("/novo")
     public String formularioNovoOrcamento(Model model) {
 
@@ -106,14 +93,12 @@ public class OrcamentoController {
         model.addAttribute("clientes", clienteService.findAll());
         model.addAttribute("produtos", produtoService.findAll());
 
+        model.addAttribute("modoVisualizacao", false);
+
         // 3. Retorna o nome do arquivo HTML
         return "orcamentos/formulario"; // -> /resources/templates/orcamentos/formulario.html
     }
 
-    /**
-     * Rota para SALVAR o novo orçamento.
-     * URL: POST /orcamentos/novo
-     */
     @PostMapping("/novo")
     public String salvarNovoOrcamento(
             @Valid @ModelAttribute("orcamentoFormDTO") OrcamentoFormDTO orcamentoFormDTO,
@@ -129,6 +114,8 @@ public class OrcamentoController {
             // Precisamos enviar as listas de clientes e produtos NOVAMENTE
             model.addAttribute("clientes", clienteService.findAll());
             model.addAttribute("produtos", produtoService.findAll());
+
+            model.addAttribute("modoVisualizacao", false);
 
             return "orcamentos/formulario";
         }

@@ -49,7 +49,11 @@
 
         <td>
             <a th:href="@{/orcamentos/pdf/{id}(id=${orcamento.id})}" class="btn btn-pdf">Gerar PDF</a>
-            <a th:href="@{/orcamentos/editar/{id}(id=${orcamento.id})}" class="btn" style="background-color: #17a2b8; color: white;">Visualizar</a>
+            <a th:href="@{/orcamentos/visualizar/{id}(id=${orcamento.id})}"
+               class="btn"
+               style="background-color: #17a2b8; color: white;">
+                Visualizar
+            </a>
             <a th:href="@{/orcamentos/deletar/{id}(id=${orcamento.id})}" class="btn" style="background-color: #dc3545; color: white; margin-left: 5px;"
                onclick="return confirm('Tem certeza que deseja excluir este orçamento permanentemente?');">Excluir</a>
         </td>
