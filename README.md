@@ -57,7 +57,7 @@ O projeto segue uma arquitetura MVC clássica, com forte separação de responsa
 ### Executando
 1. Abra o terminal e clone o repositório:
    ```bash
-   git clone [https://github.com/MaykCruz/orcamento-mvp.git](https://github.com/SEU-USUARIO/orcamento-mvp.git)
+   git clone https://github.com/MaykCruz/orcamento-mvp.git
 
 2. Entre na pasta do projeto:
    ```bash
@@ -67,7 +67,7 @@ O projeto segue uma arquitetura MVC clássica, com forte separação de responsa
     ```bash
    ./mvnw spring-boot:run
 
-(No Windows, use `mvnw.cmd spring-bot:run` se o comando acima não funcionar).
+(No Windows, use `mvnw.cmd spring-boot:run` se o comando acima não funcionar).
 
 4. Assim que o terminal mostrar a mensagem `Started OrcamentoMvpApplication`, acesse em seu navegador: http://localhost:8080
 
@@ -76,3 +76,40 @@ O projeto segue uma arquitetura MVC clássica, com forte separação de responsa
 Para o primeiro acesso, utilize o usuário administrador que é criado automaticamente na primeira execução:
 - Usuário: `admin@gmail.com`
 - Senha: `123456`
+
+## 🤝 Time de Desenvolvimento
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/MaykCruz">
+        <img src="https://github.com/MaykCruz.png" width="100px;" alt="Foto do Mayk"/><br>
+        <sub>
+          <b>Mayk Cruz</b>
+        </sub>
+      </a><br>
+      <small>Fullstack Developer</small><br>
+      <a href="www.linkedin.com/in/mayk-cruz" target="_blank">
+        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
+      </a>
+      <a href="mailto:maykcruz30@gmail.com" target="_blank">
+        <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/USUARIO_COLEGA">
+        <img src="https://github.com/USUARIO_COLEGA.png" width="100px;" alt="Foto do Colega"/><br>
+        <sub>
+          <b>Nome do Colega</b>
+        </sub>
+      </a><br>
+      <small>Função do Colega</small><br>
+      <a href="LINK_LINKEDIN_COLEGA" target="_blank">
+        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
+      </a>
+      <a href="mailto:EMAIL_COLEGA" target="_blank">
+        <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
+      </a>
+    </td>
+  </tr>
+</table>
