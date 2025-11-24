@@ -97,17 +97,43 @@ Para o primeiro acesso, utilize o usuário administrador que é criado automatic
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/USUARIO_COLEGA">
-        <img src="https://github.com/USUARIO_COLEGA.png" width="100px;" alt="Foto do Colega"/><br>
+      <a href="https://github.com/diazada">
+        <img src="https://github.com/diazada.png" width="100px;" alt="Foto do Arthur"/><br>
         <sub>
-          <b>Nome do Colega</b>
+          <b>Arthur Dias</b>
         </sub>
       </a><br>
-      <small>Função do Colega</small><br>
-      <a href="LINK_LINKEDIN_COLEGA" target="_blank">
+      <small>Requirements Analyst</small><br>
+      <a href="https://www.linkedin.com/in/arthur-dias-038a23300/" target="_blank">
         <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
       </a>
-      <a href="mailto:EMAIL_COLEGA" target="_blank">
+      <a href="mailto:arthurdias30762@gmail.com" target="_blank">
+        <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
+      </a>
+    <td align="center">
+      <a href="https://github.com/gabrielhfaca">
+        <img src="https://github.com/gabrielhfaca.png" width="100px;" alt="Foto do Gabriel"/><br>
+        <sub>
+          <b>Gabriel Parra</b>
+        </sub>
+      </a><br>
+      <small>Data engineer</small><br>
+      <a href="mailto:gabriel.hfaca@gmail.com" target="_blank">
+        <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tiagoazz">
+        <img src="https://github.com/tiagoazz.png" width="100px;" alt="Foto do Tiago"/><br>
+        <sub>
+          <b>Tiago Azevedo</b>
+        </sub>
+      </a><br>
+      <small>Project and Documentation Manager</small><br>
+      <a href="https://www.linkedin.com/in/tiago-azevedo-57aa33160/" target="_blank">
+        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
+      </a>
+      <a href="mailto:tiago.azevedo.massarin@gmail.com" target="_blank">
         <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" />
       </a>
     </td>
