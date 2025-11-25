@@ -2,112 +2,98 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Configurações da Empresa</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
-        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        div { display: flex; flex-direction: column; }
-        label { margin-bottom: 5px; font-weight: bold; }
-        input[type=text], input[type=number] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .full-width { grid-column: 1 / -1; } /* Ocupa a largura total */
-        .btn-salvar { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .msg-sucesso { color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px; }
-        .logo-preview-container {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px dashed #ccc;
-            border-radius: 4px;
-            display: inline-block; /* Faz a div se ajustar ao tamanho da imagem */
-        }
-        .logo-preview {
-            max-width: 250px; /* Define uma largura máxima */
-            max-height: 100px; /* Define uma altura máxima */
-            object-fit: contain; /* Garante que a imagem apareça inteira */
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFlow - Configurações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } input:focus { outline: none; } </style>
 </head>
-<body>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
 
-<h1>Configurações da Empresa</h1>
-<p>Estes dados serão usados para gerar os orçamentos em PDF.</p>
+<aside th:replace="~{fragments/sidebar :: sidebar('configuracoes')}"></aside>
 
-<div th:if="${mensagemSucesso}" class="msg-sucesso" th:text="${mensagemSucesso}"></div>
+<div class="flex-1 flex flex-col overflow-y-auto">
+    <main class="p-8 max-w-5xl mx-auto w-full">
+        <h1 class="text-2xl font-bold text-slate-900 mb-2">Configurações da Empresa</h1>
+        <p class="text-slate-500 mb-8">Esses dados aparecerão no cabeçalho dos seus orçamentos PDF.</p>
 
-<form th:action="@{/configuracoes}" th:object="${configs}" method="post">
+        <div th:if="${mensagemSucesso}" class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 flex items-center">
+            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i> <span th:text="${mensagemSucesso}"></span>
+        </div>
 
-    <input type="hidden" th:field="*{id}" />
+        <form th:action="@{/configuracoes}" th:object="${configs}" method="post" class="space-y-6">
+            <input type="hidden" th:field="*{id}" />
 
-    <div class="full-width">
-        <h2>Dados da Empresa</h2>
-    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i data-lucide="building-2" class="w-5 h-5 mr-2 text-blue-500"></i> Dados da Empresa
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nome Fantasia</label>
+                        <input type="text" th:field="*{nome}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">CNPJ</label>
+                        <input type="text" th:field="*{cnpj}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Validade do Orçamento (Dias)</label>
+                        <input type="number" th:field="*{diasValidadeOrcamento}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">URL do Logo</label>
+                        <input type="text" th:field="*{logoUrl}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                        <div th:if="${configs.logoUrl != null && !configs.logoUrl.isEmpty()}" class="mt-4 p-4 border border-dashed border-slate-300 rounded-lg inline-block">
+                            <p class="text-xs text-slate-500 mb-2">Pré-visualização:</p>
+                            <img th:src="${configs.logoUrl}" class="h-16 object-contain" />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div>
-        <label for="nome">Nome da Empresa:</label>
-        <input type="text" th:field="*{nome}" id="nome" />
-    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-blue-500"></i> Endereço
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">CEP</label>
+                        <input type="text" th:field="*{cep}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Logradouro</label>
+                        <input type="text" th:field="*{logradouro}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Número</label>
+                        <input type="text" th:field="*{numero}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Bairro</label>
+                        <input type="text" th:field="*{bairro}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Cidade</label>
+                        <input type="text" th:field="*{cidade}" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">UF</label>
+                        <input type="text" th:field="*{uf}" maxlength="2" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border uppercase" />
+                    </div>
+                </div>
+            </div>
 
-    <div>
-        <label for="cnpj">CNPJ:</label>
-        <input type="text" th:field="*{cnpj}" id="cnpj" />
-    </div>
-
-    <div>
-        <label for="diasValidadeOrcamento">Validade Padrão dos Orçamentos (dias):</label>
-        <input type="number" th:field="*{diasValidadeOrcamento}" id="diasValidadeOrcamento" min="0" />
-    </div>
-
-    <div>
-        <label for="logoUrl">URL do Logo (para o PDF):</label>
-        <input type="text" th:field="*{logoUrl}" id="logoUrl" placeholder="Ex: https://i.imgur.com/link.jpg" />
-    </div>
-
-    <div th:if="${configs.logoUrl != null && !configs.logoUrl.isEmpty()}" class="logo-preview-container">
-        <label>Pré-visualização do Logo:</label>
-        <img th:src="${configs.logoUrl}" alt="Preview do Logo" class="logo-preview" />
-    </div>
-
-    <div class="full-width">
-        <h2>Endereço da Empresa (para o PDF)</h2>
-    </div>
-
-    <div>
-        <label for="logradouro">Logradouro:</label>
-        <input type="text" th:field="*{logradouro}" id="logradouro" />
-    </div>
-
-    <div>
-        <label for="numero">Número:</label>
-        <input type="text" th:field="*{numero}" id="numero" />
-    </div>
-
-    <div>
-        <label for="bairro">Bairro:</label>
-        <input type="text" th:field="*{bairro}" id="bairro" />
-    </div>
-
-    <div>
-        <label for="cep">CEP:</label>
-        <input type="text" th:field="*{cep}" id="cep" />
-    </div>
-
-    <div>
-        <label for="cidade">Cidade:</label>
-        <input type="text" th:field="*{cidade}" id="cidade" />
-    </div>
-
-    <div>
-        <label for="uf">UF:</label>
-        <input type="text" th:field="*{uf}" id="uf" maxlength="2" />
-    </div>
-
-    <div class="full-width">
-        <button type="submit" class="btn-salvar">Salvar Configurações</button>
-    </div>
-</form>
-
-<div style="margin-top: 15px;">
-    <a th:href="@{/orcamentos/historico}" class="btn-voltar">Voltar</a>
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm flex items-center">
+                    <i data-lucide="save" class="w-4 h-4 mr-2"></i> Salvar Configurações
+                </button>
+            </div>
+        </form>
+    </main>
 </div>
-
+<script>lucide.createIcons();</script>
 </body>
 </html>

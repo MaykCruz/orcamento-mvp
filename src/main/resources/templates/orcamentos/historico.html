@@ -2,68 +2,79 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Histórico de Orçamentos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 0.9em; }
-        .btn-novo { background-color: #28a745; color: white; margin-right: 10px; }
-        .btn-pdf { background-color: #dc3545; color: white; }
-        .total-valor { font-weight: bold; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFlow - Histórico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
 
-<h1>Histórico de Orçamentos</h1>
+<aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
 
-<p>
-    <a th:href="@{/orcamentos/novo}" class="btn btn-novo">Criar Novo Orçamento</a>
-    <a th:href="@{/clientes}" class="btn">Clientes</a>
-    <a th:href="@{/produtos}" class="btn">Produtos</a>
-    <a th:href="@{/configuracoes}" class="btn">Configurações</a>
-</p>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Data</th>
-        <th>Cliente</th>
-        <th>Itens</th>
-        <th>Total Final</th>
-        <th>Ações</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="orcamento : ${orcamentos}">
-        <td th:text="${orcamento.id}">#1</td>
-        <td th:text="${#temporals.format(orcamento.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</td>
-
-        <td th:text="${orcamento.cliente.nome}">Nome do Cliente</td>
-
-        <td th:text="${orcamento.itensOrcamento.size()}">5 itens</td>
-
-        <td class="total-valor" th:text="${#numbers.formatCurrency(orcamento.total)}">R$ 5.000,00</td>
-
-        <td>
-            <a th:href="@{/orcamentos/pdf/{id}(id=${orcamento.id})}" class="btn btn-pdf">Gerar PDF</a>
-            <a th:href="@{/orcamentos/visualizar/{id}(id=${orcamento.id})}"
-               class="btn"
-               style="background-color: #17a2b8; color: white;">
-                Visualizar
+<div class="flex-1 flex flex-col overflow-y-auto">
+    <main class="p-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Dashboard de Orçamentos</h1>
+                <p class="text-slate-500 mt-1">Histórico completo de propostas geradas.</p>
+            </div>
+            <a th:href="@{/orcamentos/novo}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Criar Orçamento
             </a>
-            <a th:href="@{/orcamentos/deletar/{id}(id=${orcamento.id})}" class="btn" style="background-color: #dc3545; color: white; margin-left: 5px;"
-               onclick="return confirm('Tem certeza que deseja excluir este orçamento permanentemente?');">Excluir</a>
-        </td>
-    </tr>
+        </div>
 
-    <tr th:if="${#lists.isEmpty(orcamentos)}">
-        <td colspan="6">Nenhum orçamento encontrado.</td>
-    </tr>
-    </tbody>
-</table>
+        <div th:if="${mensagemSucesso}" class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 flex items-center">
+            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i> <span th:text="${mensagemSucesso}"></span>
+        </div>
 
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Data</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Cliente</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Qtd Itens</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Total Final</th>
+
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="orcamento : ${orcamentos}" class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900" th:text="'#' + ${orcamento.id}">#100</td>
+                    <td class="px-6 py-4 text-sm text-slate-500" th:text="${#temporals.format(orcamento.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">
+                                <span th:text="${#strings.substring(orcamento.cliente.nome,0,1)}">C</span>
+                            </div>
+                            <span class="text-sm font-medium text-slate-900" th:text="${orcamento.cliente.nome}">Cliente</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm text-slate-500" th:text="${orcamento.itensOrcamento.size()}">5</td>
+                    <td class="px-6 py-4 text-right text-sm font-bold text-slate-900" th:text="${#numbers.formatCurrency(orcamento.total)}">R$ 5.000,00</td>
+
+                    <td class="px-6 py-4 text-center text-sm font-medium">
+                        <div class="flex justify-center space-x-2">
+                            <a th:href="@{/orcamentos/pdf/{id}(id=${orcamento.id})}" class="inline-flex items-center px-2 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded border border-red-200 text-xs transition-colors">
+                                <i data-lucide="file-text" class="w-3 h-3 mr-1"></i> PDF
+                            </a>
+                            <a th:href="@{/orcamentos/visualizar/{id}(id=${orcamento.id})}" class="inline-flex items-center px-2 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded border border-indigo-200 text-xs transition-colors">
+                                <i data-lucide="eye" class="w-3 h-3 mr-1"></i> Ver
+                            </a>
+                            <a th:href="@{/orcamentos/deletar/{id}(id=${orcamento.id})}" onclick="return confirm('Excluir permanentemente?');" class="text-slate-400 hover:text-red-600 p-1">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+<script>lucide.createIcons();</script>
 </body>
 </html>

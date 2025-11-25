@@ -2,88 +2,87 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Produtos e Serviços</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; text-decoration: none; border-radius: 4px; }
-        .btn-novo { background-color: #28a745; color: white; }
-        .btn-editar { background-color: #ffc107; color: black; }
-        .btn-deletar { background-color: #dc3545; color: white; }
-        .msg-sucesso { color: green; border: 1px solid green; padding: 10px; margin-bottom: 10px; }
-        .msg-erro { color: red; border: 1px solid red; padding: 10px; margin-bottom: 10px; }
-        .thumbnail {
-            width: 60px;
-            height: 60px;
-            object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
-            border-radius: 4px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFlow - Produtos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
 
-<h1>Gestão de Produtos e Serviços</h1>
+<aside th:replace="~{fragments/sidebar :: sidebar('produtos')}"></aside>
 
-<div th:if="${mensagemSucesso}" class="msg-sucesso" th:text="${mensagemSucesso}"></div>
-<div th:if="${mensagemErro}" class="msg-erro" th:text="${mensagemErro}"></div>
-
-<p>
-    <a th:href="@{/produtos/novo}" class="btn btn-novo">Novo Produto/Serviço</a>
-</p>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Imagem</th> <th>Descrição</th>
-        <th>Preço</th>
-        <th>Tipo</th>
-        <th>Ações</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="produto : ${produtos}">
-        <td th:text="${produto.id}">1</td>
-
-        <td>
-            <img th:if="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}"
-                 th:src="${produto.imagemUrl}"
-                 alt="Imagem do Produto"
-                 class="thumbnail" />
-            <span th:unless="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}">
-                        (Sem Img)
-                    </span>
-        </td>
-
-        <td th:text="${produto.descricao}">Descrição do Produto</td>
-
-        <td th:text="${#numbers.formatCurrency(produto.preco)}">R$ 100,00</td>
-
-        <td>
-            <span th:text="${produto.precoEditavel} ? 'Serviço' : 'Produto'"></span>
-        </td>
-
-        <td>
-            <a th:href="@{/produtos/editar/{id}(id=${produto.id})}" class="btn btn-editar">Editar</a>
-
-            <a th:href="@{/produtos/deletar/{id}(id=${produto.id})}"
-               class="btn btn-deletar"
-               onclick="return confirm('Tem certeza que deseja deletar?');">
-                Deletar
+<div class="flex-1 flex flex-col overflow-y-auto">
+    <main class="p-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Catálogo de Produtos</h1>
+                <p class="text-slate-500 mt-1">Gerencie seus produtos e serviços.</p>
+            </div>
+            <a th:href="@{/produtos/novo}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Novo Item
             </a>
-        </td>
-    </tr>
+        </div>
 
-    <tr th:if="${#lists.isEmpty(produtos)}">
-        <td colspan="6">Nenhum produto ou serviço cadastrado.</td>
-    </tr>
-    </tbody>
-</table>
-<div style="margin-top: 15px;">
-    <a th:href="@{/orcamentos/historico}" class="btn-voltar">Voltar</a>
+        <div th:if="${mensagemSucesso}" class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 flex items-center">
+            <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i> <span th:text="${mensagemSucesso}"></span>
+        </div>
+        <div th:if="${mensagemErro}" class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-center">
+            <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i> <span th:text="${mensagemErro}"></span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Item</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Preço</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tipo</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="produto : ${produtos}" class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm text-slate-500" th:text="'#' + ${produto.id}">1</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0 rounded bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+                                <img th:if="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}" th:src="${produto.imagemUrl}" class="h-full w-full object-cover" />
+                                <i th:unless="${produto.imagemUrl != null && !produto.imagemUrl.isEmpty()}" data-lucide="image" class="h-5 w-5 text-slate-400"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-slate-900" th:text="${produto.descricao}">Produto</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 whitespace-nowrap" th:text="${#numbers.formatCurrency(produto.preco)}">R$ 100,00</td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:if="${!produto.precoEditavel}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Produto (Fixo)</span>
+                        <span th:if="${produto.precoEditavel}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Serviço (Editável)</span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm font-medium">
+                        <div class="flex justify-center space-x-2">
+                            <a th:href="@{/produtos/editar/{id}(id=${produto.id})}" class="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </a>
+                            <a th:href="@{/produtos/deletar/{id}(id=${produto.id})}"
+                               class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                               onclick="return confirm('Deletar este item?');">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 </div>
-
+<script>lucide.createIcons();</script>
 </body>
 </html>

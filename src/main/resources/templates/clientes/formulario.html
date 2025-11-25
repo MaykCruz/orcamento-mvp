@@ -2,101 +2,133 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${cliente.id == null} ? 'Novo Cliente' : 'Editar Cliente'"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${cliente.id == null} ? 'Novo Cliente - EasyFlow' : 'Editar Cliente - EasyFlow'"></title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
-        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        div { display: flex; flex-direction: column; }
-        label { margin-bottom: 5px; font-weight: bold; }
-        input[type=text] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .full-width { grid-column: 1 / -1; } /* Ocupa a largura total */
-        .btn-salvar { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-voltar { text-decoration: none; color: #555; }
-        .error-message { color: red; font-size: 0.9em; margin-top: 2px; }
+        body { font-family: 'Inter', sans-serif; }
+        /* Remove outline padrão e adiciona ring do Tailwind */
+        input:focus { outline: none; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
 
-<h1 th:text="${cliente.id == null} ? 'Novo Cliente' : 'Editar Cliente'">Formulário de Cliente</h1>
+<aside th:replace="~{fragments/sidebar :: sidebar('clientes')}"></aside>
 
-<form th:action="@{/clientes}" th:object="${cliente}" method="post">
+<div class="flex-1 flex flex-col overflow-y-auto">
+    <main class="p-8 max-w-5xl mx-auto w-full">
 
-    <input type="hidden" th:field="*{id}" />
+        <div class="mb-6">
+            <a th:href="@{/clientes}" class="inline-flex items-center text-sm text-slate-500 hover:text-blue-600 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Voltar para Lista
+            </a>
+        </div>
 
-    <div class="full-width">
-        <h2>Dados Pessoais</h2>
-    </div>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-900" th:text="${cliente.id == null} ? 'Cadastrar Novo Cliente' : 'Editar Cliente #' + ${cliente.id}"></h1>
+        </div>
 
-    <div>
-        <label for="nome">Nome:</label>
-        <input type="text" th:field="*{nome}" id="nome" />
-        <span class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
-    </div>
+        <form th:action="@{/clientes}" th:object="${cliente}" method="post" class="space-y-6">
+            <input type="hidden" th:field="*{id}" />
 
-    <div>
-        <label for="cpf">CPF:</label>
-        <input type="text" th:field="*{cpf}" id="cpf" placeholder="Apenas 11 dígitos" />
-        <span class="error-message" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></span>
-    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i data-lucide="user" class="w-5 h-5 mr-2 text-blue-500"></i>
+                    Dados Pessoais
+                </h2>
 
-    <div>
-        <label for="email">Email:</label>
-        <input type="text" th:field="*{email}" id="email" />
-        <span class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
-    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="nome" class="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
+                        <input type="text" th:field="*{nome}" id="nome" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" placeholder="Ex: João da Silva" />
+                        <p class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                    </div>
 
-    <div>
-        <label for="telefone">Telefone:</label>
-        <input type="text" th:field="*{telefone}" id="telefone" />
-        <span class="error-message" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></span>
-    </div>
+                    <div>
+                        <label for="cpf" class="block text-sm font-medium text-slate-700 mb-1">CPF</label>
+                        <input type="text" th:field="*{cpf}" id="cpf" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" placeholder="000.000.000-00" />
+                        <p class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></p>
+                    </div>
 
-    <div class="full-width">
-        <h2>Endereço</h2>
-    </div>
+                    <div>
+                        <label for="telefone" class="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
+                        <input type="text" th:field="*{telefone}" id="telefone" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" placeholder="(00) 00000-0000" />
+                        <p class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></p>
+                    </div>
 
-    <div>
-        <label for="logradouro">Logradouro:</label>
-        <input type="text" th:field="*{logradouro}" id="logradouro" />
-    </div>
+                    <div class="md:col-span-2">
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="text" th:field="*{email}" id="email" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" placeholder="joao@email.com" />
+                        <p class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                    </div>
+                </div>
+            </div>
 
-    <div>
-        <label for="numero">Número:</label>
-        <input type="text" th:field="*{numero}" id="numero" />
-    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-blue-500"></i>
+                    Endereço
+                </h2>
 
-    <div>
-        <label for="bairro">Bairro:</label>
-        <input type="text" th:field="*{bairro}" id="bairro" />
-    </div>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="cep" class="block text-sm font-medium text-slate-700 mb-1">CEP</label>
+                        <input type="text" th:field="*{cep}" id="cep" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
-    <div>
-        <label for="cep">CEP:</label>
-        <input type="text" th:field="*{cep}" id="cep" />
-    </div>
+                    <div class="md:col-span-4">
+                        <label for="logradouro" class="block text-sm font-medium text-slate-700 mb-1">Logradouro</label>
+                        <input type="text" th:field="*{logradouro}" id="logradouro" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
-    <div>
-        <label for="cidade">Cidade:</label>
-        <input type="text" th:field="*{cidade}" id="cidade" />
-    </div>
+                    <div class="md:col-span-2">
+                        <label for="numero" class="block text-sm font-medium text-slate-700 mb-1">Número</label>
+                        <input type="text" th:field="*{numero}" id="numero" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
-    <div>
-        <label for="uf">UF:</label>
-        <input type="text" th:field="*{uf}" id="uf" maxlength="2" />
-        <span class="error-message" th:if="${#fields.hasErrors('uf')}" th:errors="*{uf}"></span>
-    </div>
+                    <div class="md:col-span-4">
+                        <label for="complemento" class="block text-sm font-medium text-slate-700 mb-1">Complemento</label>
+                        <input type="text" th:field="*{complemento}" id="complemento" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
-    <div class="full-width">
-        <label for="complemento">Complemento:</label>
-        <input type="text" th:field="*{complemento}" id="complemento" />
-    </div>
+                    <div class="md:col-span-2">
+                        <label for="bairro" class="block text-sm font-medium text-slate-700 mb-1">Bairro</label>
+                        <input type="text" th:field="*{bairro}" id="bairro" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
-    <div class="full-width">
-        <button type="submit" class="btn-salvar">Salvar</button>
-        <br/>
-        <a th:href="@{/clientes}" class="btn-voltar">Voltar para a Lista</a>
-    </div>
-</form>
+                    <div class="md:col-span-3">
+                        <label for="cidade" class="block text-sm font-medium text-slate-700 mb-1">Cidade</label>
+                        <input type="text" th:field="*{cidade}" id="cidade" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border" />
+                    </div>
 
+                    <div class="md:col-span-1">
+                        <label for="uf" class="block text-sm font-medium text-slate-700 mb-1">UF</label>
+                        <input type="text" th:field="*{uf}" id="uf" maxlength="2" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 px-3 border uppercase" />
+                        <p class="mt-1 text-sm text-red-600" th:if="${#fields.hasErrors('uf')}" th:errors="*{uf}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
+                <a th:href="@{/clientes}" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition-colors flex items-center">
+                    <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                    Salvar Cliente
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

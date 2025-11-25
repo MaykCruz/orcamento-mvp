@@ -28,10 +28,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // ...deve ser autenticada
                 )
                 .formLogin(form -> form
-                        // 1. NÃO chamamos login.Page(),
-                        //    então o Spring VAI GERAR a página padrão na ULR /login
-                        // 2. Apenas dizemos para onde ir APÓS o login
+                        .loginPage("/login")
                         .defaultSuccessUrl("/", true)
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // URL para deslogar

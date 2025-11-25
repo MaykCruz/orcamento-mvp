@@ -9,6 +9,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -23,166 +24,244 @@ public class PdfService {
     @Autowired
     private ConfigsEmpresaService configsEmpresaService;
 
+    // --- PALETA DE CORES EASYFLOW ---
+    private static final Color COR_PRIMARIA = new Color(37, 99, 235);   // Blue-600 (#2563EB)
+    private static final Color COR_CABECALHO_TABELA = new Color(241, 245, 249); // Slate-100 (#F1F5F9)
+    private static final Color COR_TEXTO_ESCURO = new Color(15, 23, 42); // Slate-900
+    private static final Color COR_TEXTO_CINZA = new Color(100, 116, 139); // Slate-500
+    private static final Color COR_BORDA = new Color(226, 232, 240); // Slate-200
+
+    // --- FONTES ---
+    private static final Font FONT_TITULO = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Font.NORMAL, COR_PRIMARIA);
+    private static final Font FONT_SUBTITULO = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.NORMAL, COR_TEXTO_ESCURO);
+    private static final Font FONT_CORPO = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, COR_TEXTO_ESCURO);
+    private static final Font FONT_CORPO_PEQUENO = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, COR_TEXTO_CINZA);
+    private static final Font FONT_CABECALHO_TABELA = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Font.NORMAL, COR_TEXTO_ESCURO);
+
     public byte[] gerarOrcamentoPdf(Orcamento orcamento) {
-        // 1. Cria o documento em memória (ByteArrayOutputStream)
-        Document document = new Document(PageSize.A4);
+        Document document = new Document(PageSize.A4, 40, 40, 40, 40);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Busca as configurações da empresa (Logo, CNPJ, etc.)
             ConfigsEmpresaDTO empresa = configsEmpresaService.getConfigs();
 
-            // --- CABEÇALHO (Logo e Dados da Empresa) ---
+            // 1. CABEÇALHO (Logo + Dados da Empresa)
             PdfPTable headerTable = new PdfPTable(2);
             headerTable.setWidthPercentage(100);
-            headerTable.setWidths(new float[]{1, 3}); // Coluna 1 (Logo) menor que Coluna 2 (Texto)
+            headerTable.setWidths(new float[]{1, 2});
 
             // Logo
-            PdfPCell logoCell = new PdfPCell();
-            logoCell.setBorder(Rectangle.NO_BORDER);
+            PdfPCell cellLogo = new PdfPCell();
+            cellLogo.setBorder(Rectangle.NO_BORDER);
             try {
                 if (empresa.getLogoUrl() != null && !empresa.getLogoUrl().isEmpty()) {
                     Image logo = Image.getInstance(new URL(empresa.getLogoUrl()));
-                    logo.scaleToFit(100, 80); // Tamanho máximo do logo
-                    logoCell.addElement(logo);
+                    logo.scaleToFit(120, 60);
+                    cellLogo.addElement(logo);
                 } else {
-                    logoCell.addElement(new Phrase("Sem Logo"));
+                    Paragraph p = new Paragraph("EasyFlow", FONT_TITULO);
+                    cellLogo.addElement(p);
                 }
             } catch (Exception e) {
-                logoCell.addElement(new Phrase("(Erro ao carregar logo)"));
+                cellLogo.addElement(new Paragraph("EasyFlow", FONT_TITULO));
             }
-            headerTable.addCell(logoCell);
+            headerTable.addCell(cellLogo);
 
             // Dados da Empresa
-            PdfPCell dadosEmpresaCell = new PdfPCell();
-            dadosEmpresaCell.setBorder(Rectangle.NO_BORDER);
-            dadosEmpresaCell.addElement(new Paragraph(empresa.getNome() != null ? empresa.getNome() : "Minha Empresa", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
-            dadosEmpresaCell.addElement(new Phrase("CNPJ: " + (empresa.getCnpj() != null ? empresa.getCnpj() : "N/A")));
-            dadosEmpresaCell.addElement(new Phrase(formatarEndereco(empresa)));
-            headerTable.addCell(dadosEmpresaCell);
+            PdfPCell cellEmpresa = new PdfPCell();
+            cellEmpresa.setBorder(Rectangle.NO_BORDER);
+            cellEmpresa.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
-            document.add(headerTable);
-            document.add(new Paragraph("\n")); // Espaço
+            Paragraph pNomeEmpresa = new Paragraph(empresa.getNome() != null ? empresa.getNome() : "Minha Empresa", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Font.NORMAL, COR_TEXTO_ESCURO));
+            pNomeEmpresa.setAlignment(Element.ALIGN_RIGHT);
+            cellEmpresa.addElement(pNomeEmpresa);
 
-            // --- TÍTULO DO DOCUMENTO ---
-            Paragraph titulo = new Paragraph("ORÇAMENTO #" + orcamento.getId(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Color.BLUE));
-            titulo.setAlignment(Element.ALIGN_CENTER);
-            document.add(titulo);
-            document.add(new Paragraph("\n"));
+            String endereco = formatarEndereco(empresa);
+            Paragraph pEndereco = new Paragraph(endereco, FONT_CORPO_PEQUENO);
+            pEndereco.setAlignment(Element.ALIGN_RIGHT);
+            cellEmpresa.addElement(pEndereco);
 
-            // --- DADOS DO CLIENTE E DATAS ---
-            PdfPTable infoTable = new PdfPTable(2);
-            infoTable.setWidthPercentage(100);
-
-            PdfPCell clienteCell = new PdfPCell();
-            clienteCell.setBorder(Rectangle.BOX);
-            clienteCell.setPadding(10);
-            clienteCell.addElement(new Phrase("Cliente:", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
-            clienteCell.addElement(new Phrase(orcamento.getCliente().getNome()));
-            clienteCell.addElement(new Phrase("CPF: " + orcamento.getCliente().getCpf()));
-            if (orcamento.getCliente().getEmail() != null) clienteCell.addElement(new Phrase("Email: " + orcamento.getCliente().getEmail()));
-            infoTable.addCell(clienteCell);
-
-            PdfPCell datasCell = new PdfPCell();
-            datasCell.setBorder(Rectangle.BOX);
-            datasCell.setPadding(10);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            datasCell.addElement(new Phrase("Data de Criação: " + orcamento.getDataCriacao().format(formatter)));
-
-            // Lógica da Data de Validade (Só mostra se existir)
-            if (orcamento.getDataValidade() != null) {
-                datasCell.addElement(new Phrase("Válido até: " + orcamento.getDataValidade().format(formatter), FontFactory.getFont(FontFactory.HELVETICA, 12, Color.RED)));
+            if (empresa.getCnpj() != null) {
+                Paragraph pCnpj = new Paragraph("CNPJ: " + empresa.getCnpj(), FONT_CORPO_PEQUENO);
+                pCnpj.setAlignment(Element.ALIGN_RIGHT);
+                cellEmpresa.addElement(pCnpj);
             }
-            infoTable.addCell(datasCell);
+            headerTable.addCell(cellEmpresa);
+            document.add(headerTable);
 
-            document.add(infoTable);
             document.add(new Paragraph("\n"));
 
-            // --- TABELA DE ITENS ---
-            PdfPTable itensTable = new PdfPTable(6); // Imagem, Descrição, Qtd, Preço Unit, Desconto, Subtotal
-            itensTable.setWidthPercentage(100);
-            itensTable.setWidths(new float[]{1, 4, 1, 2, 2, 2});
+            // 2. BARRA DE TÍTULO
+            PdfPTable titleBar = new PdfPTable(2);
+            titleBar.setWidthPercentage(100);
+            titleBar.setSpacingBefore(10);
+            titleBar.setSpacingAfter(10);
 
-            // Cabeçalho da Tabela
-            String[] headers = {"Img", "Descrição", "Qtd", "Vl. Unit.", "Desc", "Subtotal"};
+            PdfPCell cellTitle = new PdfPCell(new Phrase("ORÇAMENTO #" + orcamento.getId(), FONT_TITULO));
+            cellTitle.setBorder(Rectangle.BOTTOM);
+            cellTitle.setBorderColor(COR_BORDA);
+            cellTitle.setPaddingBottom(10);
+            titleBar.addCell(cellTitle);
+
+            PdfPCell cellDates = new PdfPCell();
+            cellDates.setBorder(Rectangle.BOTTOM);
+            cellDates.setBorderColor(COR_BORDA);
+            cellDates.setPaddingBottom(10);
+            cellDates.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            Paragraph pDataCriacao = new Paragraph("Data: " + orcamento.getDataCriacao().format(fmt), FONT_CORPO);
+            pDataCriacao.setAlignment(Element.ALIGN_RIGHT);
+            cellDates.addElement(pDataCriacao);
+
+            if (orcamento.getDataValidade() != null) {
+                Paragraph pValidade = new Paragraph("Válido até: " + orcamento.getDataValidade().format(fmt),
+                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.NORMAL, new Color(220, 38, 38)));
+                pValidade.setAlignment(Element.ALIGN_RIGHT);
+                cellDates.addElement(pValidade);
+            }
+            titleBar.addCell(cellDates);
+            document.add(titleBar);
+
+            // 3. DADOS DO CLIENTE
+            Paragraph lblCliente = new Paragraph("PREPARADO PARA:", FONT_CORPO_PEQUENO);
+            lblCliente.setSpacingBefore(5);
+            document.add(lblCliente);
+
+            Paragraph nomeCliente = new Paragraph(orcamento.getCliente().getNome(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+            document.add(nomeCliente);
+
+            if(orcamento.getCliente().getEmail() != null) {
+                document.add(new Paragraph(orcamento.getCliente().getEmail(), FONT_CORPO));
+            }
+            if(orcamento.getCliente().getCpf() != null) {
+                document.add(new Paragraph("CPF: " + orcamento.getCliente().getCpf(), FONT_CORPO));
+            }
+
+            document.add(new Paragraph("\n"));
+
+            // 4. TABELA DE ITENS (6 COLUNAS)
+            PdfPTable itensTable = new PdfPTable(6); // Img, Desc, Qtd, Unit, Desc, Total
+            itensTable.setWidthPercentage(100);
+            // Larguras ajustadas: Imagem pequena (1), Descrição larga (4)
+            itensTable.setWidths(new float[]{1, 4, 1, 2, 2, 2});
+            itensTable.setHeaderRows(1);
+
+            // Cabeçalho
+            String[] headers = {"IMG", "DESCRIÇÃO", "QTD", "UNIT.", "DESC.", "TOTAL"};
             for (String h : headers) {
-                PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE)));
-                cell.setBackgroundColor(Color.DARK_GRAY);
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setPadding(5);
+                PdfPCell cell = new PdfPCell(new Phrase(h, FONT_CABECALHO_TABELA));
+                cell.setBackgroundColor(COR_CABECALHO_TABELA);
+                cell.setPadding(8);
+                cell.setBorderColor(COR_BORDA);
+                // Alinhamento inteligente
+                if (h.equals("IMG") || h.equals("QTD")) cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                else if (h.equals("DESCRIÇÃO")) cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                else cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+
                 itensTable.addCell(cell);
             }
 
-            // Linhas dos Itens
+            // Linhas
             NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-
             for (ItemOrcamento item : orcamento.getItensOrcamento()) {
-                // 1. Imagem do Produto
+
+                // 1. Imagem
                 PdfPCell imgCell = new PdfPCell();
+                imgCell.setPadding(5);
+                imgCell.setBorderColor(COR_BORDA);
+                imgCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                imgCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 try {
                     String imgUrl = item.getProduto().getImagemUrl();
                     if (imgUrl != null && !imgUrl.isEmpty()) {
                         Image prodImg = Image.getInstance(new URL(imgUrl));
-                        prodImg.scaleToFit(30, 30); // Miniatura
+                        prodImg.scaleToFit(30, 30);
                         imgCell.addElement(prodImg);
+                    } else {
+                        imgCell.addElement(new Phrase("-", FONT_CORPO_PEQUENO));
                     }
                 } catch (Exception e) {
-                    // Ignora erro de imagem
+                    imgCell.addElement(new Phrase("Err", FONT_CORPO_PEQUENO));
                 }
                 itensTable.addCell(imgCell);
 
                 // 2. Descrição
-                itensTable.addCell(new Phrase(item.getProduto().getDescricao(), FontFactory.getFont(FontFactory.HELVETICA, 10)));
+                addCell(itensTable, item.getProduto().getDescricao(), Element.ALIGN_LEFT);
 
                 // 3. Qtd
-                PdfPCell qtdCell = new PdfPCell(new Phrase(String.valueOf(item.getQtd()), FontFactory.getFont(FontFactory.HELVETICA, 10)));
-                qtdCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                itensTable.addCell(qtdCell);
+                addCell(itensTable, String.valueOf(item.getQtd()), Element.ALIGN_CENTER);
 
-                // 4. Preço Unit (Já considerando se foi editado ou não, pois está salvo no item)
-                PdfPCell precoCell = new PdfPCell(new Phrase(nf.format(item.getPrecoUnitario()), FontFactory.getFont(FontFactory.HELVETICA, 10)));
-                precoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                itensTable.addCell(precoCell);
+                // 4. Preço Unit
+                addCell(itensTable, nf.format(item.getPrecoUnitario()), Element.ALIGN_RIGHT);
 
-                // 5. Desconto
-                BigDecimal descVal = item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO;
-                PdfPCell descCell = new PdfPCell(new Phrase(nf.format(descVal), FontFactory.getFont(FontFactory.HELVETICA, 10)));
-                descCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                itensTable.addCell(descCell);
+                // 5. Desconto Item
+                BigDecimal descItem = item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO;
+                addCell(itensTable, nf.format(descItem), Element.ALIGN_RIGHT);
 
-                // 6. Subtotal ((Preço * Qtd) - DescontoItem)
-                BigDecimal subtotal = item.getPrecoUnitario().multiply(BigDecimal.valueOf(item.getQtd())).subtract(item.getDesconto() != null ? item.getDesconto() : BigDecimal.ZERO);
-                PdfPCell subCell = new PdfPCell(new Phrase(nf.format(subtotal), FontFactory.getFont(FontFactory.HELVETICA, 10)));
-                subCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                itensTable.addCell(subCell);
+                // 6. Subtotal Item
+                BigDecimal subtotal = item.getPrecoUnitario()
+                        .multiply(BigDecimal.valueOf(item.getQtd()))
+                        .subtract(descItem);
+                addCell(itensTable, nf.format(subtotal), Element.ALIGN_RIGHT);
             }
-
             document.add(itensTable);
 
-            // --- TOTAIS ---
-            Paragraph pTotal = new Paragraph("Total Geral: " + nf.format(orcamento.getTotal()), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
-            pTotal.setAlignment(Element.ALIGN_RIGHT);
-            pTotal.setSpacingBefore(10);
-            document.add(pTotal);
+            // 5. TOTAIS
+            PdfPTable totalTable = new PdfPTable(2);
+            totalTable.setWidthPercentage(40);
+            totalTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            totalTable.setSpacingBefore(15);
 
             if (orcamento.getDesconto() != null && orcamento.getDesconto().compareTo(BigDecimal.ZERO) > 0) {
-                Paragraph pDesconto = new Paragraph("(Desconto Aplicado: " + nf.format(orcamento.getDesconto()) + ")", FontFactory.getFont(FontFactory.HELVETICA, 10));
-                pDesconto.setAlignment(Element.ALIGN_RIGHT);
-                document.add(pDesconto);
+                PdfPCell lblDesc = new PdfPCell(new Phrase("Desconto Extra:", FONT_CORPO));
+                lblDesc.setBorder(Rectangle.NO_BORDER);
+                lblDesc.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                totalTable.addCell(lblDesc);
+
+                PdfPCell valDesc = new PdfPCell(new Phrase("-" + nf.format(orcamento.getDesconto()), FONT_CORPO));
+                valDesc.setBorder(Rectangle.NO_BORDER);
+                valDesc.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                valDesc.setPaddingBottom(5);
+                totalTable.addCell(valDesc);
             }
 
-            // --- OBSERVAÇÕES ---
+            PdfPCell lblTotal = new PdfPCell(new Phrase("TOTAL FINAL:", FONT_SUBTITULO));
+            lblTotal.setBorder(Rectangle.TOP);
+            lblTotal.setBorderColor(COR_BORDA);
+            lblTotal.setPaddingTop(10);
+            lblTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            totalTable.addCell(lblTotal);
+
+            PdfPCell valTotal = new PdfPCell(new Phrase(nf.format(orcamento.getTotal()), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Font.NORMAL, COR_PRIMARIA)));
+            valTotal.setBorder(Rectangle.TOP);
+            valTotal.setBorderColor(COR_BORDA);
+            valTotal.setPaddingTop(10);
+            valTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            totalTable.addCell(valTotal);
+
+            document.add(totalTable);
+
+            // 6. OBSERVAÇÕES (CORRIGIDO AQUI)
             if (orcamento.getObs() != null && !orcamento.getObs().isEmpty()) {
-                document.add(new Paragraph("\nObservações:", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
-                document.add(new Paragraph(orcamento.getObs()));
-            }
+                // Removemos o \n e usamos espaçamento explícito
+                Paragraph pObsTitulo = new Paragraph("Observações:", FONT_SUBTITULO);
+                pObsTitulo.setSpacingBefore(20); // Separa dos totais
+                pObsTitulo.setSpacingAfter(5);   // Separa da caixa de texto (EVITA SOBREPOSIÇÃO)
+                document.add(pObsTitulo);
 
-            // --- ASSINATURA ---
-            document.add(new Paragraph("\n\n\n_______________________________________________"));
-            document.add(new Paragraph("Assinatura do Responsável (" + orcamento.getFuncionario().getNome() + ")"));
+                PdfPTable obsTable = new PdfPTable(1);
+                obsTable.setWidthPercentage(100);
+                PdfPCell cellObs = new PdfPCell(new Phrase(orcamento.getObs(), FONT_CORPO));
+                cellObs.setBackgroundColor(new Color(250, 250, 250));
+                cellObs.setPadding(10);
+                cellObs.setBorderColor(COR_BORDA);
+                obsTable.addCell(cellObs);
+                document.add(obsTable);
+            }
 
             document.close();
         } catch (Exception e) {
@@ -192,14 +271,23 @@ public class PdfService {
         return out.toByteArray();
     }
 
+    private void addCell(PdfPTable table, String text, int align) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, FONT_CORPO));
+        cell.setPadding(8);
+        cell.setBorderColor(COR_BORDA);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(align);
+        table.addCell(cell);
+    }
+
     private String formatarEndereco(ConfigsEmpresaDTO e) {
-        // Helper simples para montar string de endereço
-        String end = "";
-        if (e.getLogradouro() != null) end += e.getLogradouro();
-        if (e.getNumero() != null) end += ", " + e.getNumero();
-        if (e.getBairro() != null) end += " - " + e.getBairro();
-        if (e.getCidade() != null) end += "\n" + e.getCidade();
-        if (e.getUf() != null) end += "/" + e.getUf();
-        return end;
+        StringBuilder sb = new StringBuilder();
+        if (e.getLogradouro() != null) sb.append(e.getLogradouro());
+        if (e.getNumero() != null) sb.append(", ").append(e.getNumero());
+        if (e.getBairro() != null) sb.append(" - ").append(e.getBairro());
+        if (e.getCidade() != null) sb.append("\n").append(e.getCidade());
+        if (e.getUf() != null) sb.append("/").append(e.getUf());
+        if (e.getCep() != null) sb.append(" - CEP: ").append(e.getCep());
+        return sb.toString();
     }
 }

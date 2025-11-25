@@ -1,4 +1,4 @@
-# 🚀 OrçaFácil - Sistema de Gestão de Orçamentos
+# 🌊 EasyFlow - Sistema de Gestão de Orçamentos
 
 Um sistema web para agilizar a criação, gestão e emissão de orçamentos em PDF para prestadores de serviços e pequenas empresas.
 

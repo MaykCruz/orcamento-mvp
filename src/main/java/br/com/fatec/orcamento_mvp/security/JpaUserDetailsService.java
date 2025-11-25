@@ -27,7 +27,8 @@ public class JpaUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com e-mail: " + email));
 
         // 3. Convertemos nosso Funcionario para o formato que o Spring Security entende
-        return new User(
+        return new UsuarioSistema(
+                funcionario.getNome(),        // O Nome real
                 funcionario.getEmail(),       // O username
                 funcionario.getSenha(),       // A senha (criptografada!)
                 Collections.emptyList()       // A lista de "Roles" (Permissões). Deixaremos vazio por enquanto.
