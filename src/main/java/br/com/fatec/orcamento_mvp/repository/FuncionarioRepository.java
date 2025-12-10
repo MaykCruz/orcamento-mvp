@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface FuncionarioRepository extends JpaRepository<Funcionario, Long> {
 
-    // O Spring Data JPA vai ler o nome do método e "entender"
+    // O Spring Data JPA lê o nome do método e entende
     // que ele deve criar um SQL: "SELECT * FROM funcionarios WHERE email = ?"
     Optional<Funcionario> findByEmail(String email);
 }

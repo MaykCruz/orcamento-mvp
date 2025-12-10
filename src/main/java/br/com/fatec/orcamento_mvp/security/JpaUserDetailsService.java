@@ -3,7 +3,6 @@ package br.com.fatec.orcamento_mvp.security;
 import br.com.fatec.orcamento_mvp.model.Funcionario;
 import br.com.fatec.orcamento_mvp.repository.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,7 +19,7 @@ public class JpaUserDetailsService implements UserDetailsService {
     // 1. O Spring Security chama este método quando o usuário tenta logar
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // O "username" para nós é o e-mail
+        // O "username" é o e-mail
 
         // 2. Precisamos de um método no repositório para buscar por e-mail
         Funcionario funcionario = funcionarioRepository.findByEmail(email)
@@ -30,8 +29,8 @@ public class JpaUserDetailsService implements UserDetailsService {
         return new UsuarioSistema(
                 funcionario.getNome(),        // O Nome real
                 funcionario.getEmail(),       // O username
-                funcionario.getSenha(),       // A senha (criptografada!)
-                Collections.emptyList()       // A lista de "Roles" (Permissões). Deixaremos vazio por enquanto.
+                funcionario.getSenha(),       // A senha criptografada
+                Collections.emptyList()       // A lista de "Roles" (Permissões). Vazio por enquanto.
         );
     }
 }

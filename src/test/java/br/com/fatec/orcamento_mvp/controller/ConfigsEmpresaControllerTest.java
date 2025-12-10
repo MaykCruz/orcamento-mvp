@@ -2,15 +2,19 @@ package br.com.fatec.orcamento_mvp.controller;
 
 import br.com.fatec.orcamento_mvp.dto.ConfigsEmpresaDTO;
 import br.com.fatec.orcamento_mvp.service.ConfigsEmpresaService;
+import br.com.fatec.orcamento_mvp.security.UsuarioSistema;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-// Importações de segurança
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -18,45 +22,49 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ConfigsEmpresaController.class) // Carrega a fatia Web para este controller
+@WebMvcTest(ConfigsEmpresaController.class)
 class ConfigsEmpresaControllerTest {
 
     @Autowired
-    private MockMvc mockMvc; // Para simular requisições
+    private MockMvc mockMvc;
 
-    @MockBean // Cria um Mock do Service
+    @MockBean
     private ConfigsEmpresaService configsService;
+
+    // --- MÉTODO AUXILIAR PARA CORRIGIR O ERRO DA SIDEBAR ---
+    private RequestPostProcessor usuarioLogado() {
+        UsuarioSistema usuario = new UsuarioSistema(
+                "Admin Teste",
+                "admin@teste.com",
+                "123",
+                Collections.emptyList()
+        );
+        return authentication(new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities()));
+    }
 
     @Test
     void deveRetornarPaginaDeFormulario() throws Exception {
-        // Cenário: Service retorna um DTO vazio
         when(configsService.getConfigs()).thenReturn(new ConfigsEmpresaDTO());
 
-        // Ação: Simula um 'GET /configuracoes' (logado)
-        mockMvc.perform(get("/configuracoes").with(user("testUser")))
-                // Verificação (Assert)
-                .andExpect(status().isOk()) // Espera HTTP 200 (OK)
-                .andExpect(view().name("configuracoes/formulario")) // Espera o HTML
-                .andExpect(model().attributeExists("configs")); // Espera o DTO 'configs'
+        mockMvc.perform(get("/configuracoes")
+                        .with(usuarioLogado()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("configuracoes/formulario"))
+                .andExpect(model().attributeExists("configs"));
     }
 
     @Test
     void deveSalvarConfiguracoesComSucesso() throws Exception {
-        // Cenário: POST para /configuracoes com dados válidos
-
-        // Ação: Simula um 'POST /configuracoes' (logado e com token CSRF)
         mockMvc.perform(post("/configuracoes")
-                        .with(user("testUser"))
+                        .with(usuarioLogado())
                         .with(csrf())
-                        .param("nome", "Minha Empresa") // Simula campos do formulário
+                        .param("nome", "Minha Empresa")
                         .param("cnpj", "12345678901234")
                 )
-                // Verificação
-                .andExpect(status().is3xxRedirection()) // Espera um REDIRECT (HTTP 302)
-                .andExpect(redirectedUrl("/configuracoes")) // Espera que o redirect seja para ele mesmo
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/configuracoes"))
                 .andExpect(flash().attributeExists("mensagemSucesso"));
 
-        // Verifica se o CONTROLLER chamou o SERVICE
         verify(configsService).save(any(ConfigsEmpresaDTO.class));
     }
 }

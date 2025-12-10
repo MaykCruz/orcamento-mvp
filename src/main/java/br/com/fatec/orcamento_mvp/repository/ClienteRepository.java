@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-    // A mágina do Spring Data JPA acontece aqui.
     // Métodos como save(), findById(), findAll(), deleteById()
-    // já estão prontos para nós. Não precisamos escrever nada.
+    // já estão prontos graças ao JPA
 }

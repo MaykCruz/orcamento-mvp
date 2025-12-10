@@ -14,7 +14,7 @@ public class DataInitializer implements CommandLineRunner {
     private FuncionarioRepository funcionarioRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // O BCrypt que criado no SecurityConfig
+    private PasswordEncoder passwordEncoder; // O BCrypt que foi criado no SecurityConfig
 
     @Override
     public void run(String... args) throws Exception {

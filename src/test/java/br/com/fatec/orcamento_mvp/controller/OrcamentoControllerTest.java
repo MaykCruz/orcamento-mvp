@@ -7,6 +7,14 @@ import br.com.fatec.orcamento_mvp.service.ClienteService;
 import br.com.fatec.orcamento_mvp.service.OrcamentoService;
 import br.com.fatec.orcamento_mvp.service.PdfService;
 import br.com.fatec.orcamento_mvp.service.ProdutoService;
+
+import br.com.fatec.orcamento_mvp.security.UsuarioSistema;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import java.util.Collections;
+import java.util.Locale;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,6 +47,17 @@ class OrcamentoControllerTest {
     private ClienteDTO clienteMock;
     private ProdutoDTO produtoMock;
 
+    // Método auxiliar para criar o Usuário
+    private RequestPostProcessor usuarioLogado() {
+        UsuarioSistema usuario = new UsuarioSistema(
+                "Vendedor Teste",
+                "vendedor@easyflow.com",
+                "123",
+                Collections.emptyList()
+        );
+        return authentication(new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities()));
+    }
+
     @BeforeEach
     void setUp() {
         clienteMock = new ClienteDTO();
@@ -56,10 +75,10 @@ class OrcamentoControllerTest {
 
     @Test
     void deveRetornarFormularioComDados() throws Exception {
-        mockMvc.perform(get("/orcamentos/novo").with(user("admin")))
+        mockMvc.perform(get("/orcamentos/novo")
+                        .with(usuarioLogado()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("orcamentos/formulario"))
-                // CORREÇÃO 1: Alterado de "orcamentoForm" para "orcamentoFormDTO"
                 .andExpect(model().attributeExists("clientes", "produtos", "orcamentoFormDTO"));
     }
 
@@ -70,7 +89,9 @@ class OrcamentoControllerTest {
         when(orcamentoService.saveNewOrcamento(any())).thenReturn(orcamentoSalvo);
 
         mockMvc.perform(post("/orcamentos/novo")
-                        .with(user("admin")).with(csrf())
+                        .locale(Locale.US)
+                        .with(usuarioLogado())
+                        .with(csrf())
                         .param("clienteId", "1")
                         .param("desconto", "10.00")
                         .param("itens[0].produtoId", "10")
@@ -88,17 +109,16 @@ class OrcamentoControllerTest {
     @Test
     void deveFalharNaValidacaoSeNaoHouverCliente() throws Exception {
         mockMvc.perform(post("/orcamentos/novo")
-                        .with(user("admin")).with(csrf())
-                        // Note que NÃO estamos enviando o clienteId aqui de propósito
+                        .locale(Locale.US)
+                        .with(usuarioLogado())
+                        .with(csrf())
                         .param("itens[0].produtoId", "10")
                         .param("itens[0].qtd", "1")
                         .param("itens[0].precoUnitario", "50.00")
-                        // CORREÇÃO 2: Adicionado o desconto zerado para evitar erro matemático no Thymeleaf
                         .param("itens[0].desconto", "0.00")
                 )
                 .andExpect(status().isOk())
                 .andExpect(view().name("orcamentos/formulario"))
-                // CORREÇÃO 1: Alterado para "orcamentoFormDTO"
                 .andExpect(model().attributeHasFieldErrors("orcamentoFormDTO", "clienteId"));
 
         verify(orcamentoService, never()).saveNewOrcamento(any());
